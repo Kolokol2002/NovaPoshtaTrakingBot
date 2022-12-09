@@ -5,6 +5,8 @@ from aiogram.dispatcher import FSMContext
 from selenium import webdriver
 import time
 
+from selenium.webdriver.common.by import By
+
 from keyboards.default import def_kb
 from loader import dp
 from aiogram.dispatcher.filters import Text
@@ -43,13 +45,14 @@ async def minute(message: types.Message, state: FSMContext):
 
     async def pars_main(driver):
         driver.set_window_size(1500, 2000)
-        driver.find_element_by_class_name(name='fix-btn-active').click()
         time.sleep(3)
-        chat_container = driver.find_element_by_class_name('chat-container')
-        scroll_line = driver.find_element_by_class_name('bscroll-vertical-scrollbar')
+        driver.find_element(By.CLASS_NAME, 'np-message__subheading').click()
+        time.sleep(3)
+        chat_container = driver.find_element(By.CLASS_NAME, 'chat-container')
+        scroll_line = driver.find_element(By.CLASS_NAME, 'bscroll-vertical-scrollbar')
         driver.execute_script('arguments[0].style.maxHeight = "none";', chat_container)
         driver.execute_script('arguments[0].style.display = "none";', scroll_line)
-        container_message = driver.find_elements_by_class_name('message-all')[1]
+        container_message = driver.find_elements(By.CLASS_NAME, 'message-all')[1]
         time.sleep(2)
         container_message.screenshot('screen.png')
         print('Скрін зроблено!')
@@ -62,16 +65,16 @@ async def minute(message: types.Message, state: FSMContext):
         while 1:
             try:
                 print(f'Начало цикла в {minute} минут')
-                driver = webdriver.Chrome(executable_path='C:/Users/maksk/Desktop/Project on python/NovaPoshtaTrakingBot/chromedriver.exe',
+                driver = webdriver.Chrome(executable_path='C:/Users/maksk/Desktop/project-on-python/nova-poshta-traking-bot/chromedriver.exe',
                                           options=options)
                 driver.get(link)
-                paste_ttn = driver.find_element_by_id(id_='en')
+                paste_ttn = driver.find_element(By.ID, 'en')
                 paste_ttn.send_keys(value)
-                driver.find_element_by_id(id_='np-number-input-desktop-btn-search-en').click()
+                driver.find_element(By.ID, 'np-number-input-desktop-btn-search-en').click()
                 time.sleep(3)
-                driver.find_elements_by_class_name(name='v-btn__content')[6].click()
+                driver.find_elements(By.CLASS_NAME, 'v-btn__content')[5].click()
                 time.sleep(3)
-                date = driver.find_element_by_class_name('np-message__header').text
+                date = driver.find_element(By.CLASS_NAME, 'np-message__header').text
 
                 if old_date != date:
                     print('Знайдено змінення!')
@@ -89,8 +92,8 @@ async def minute(message: types.Message, state: FSMContext):
 
 
     link = f'https://tracking.novaposhta.ua/#/uk'
-    loop = asyncio.get_event_loop()
     asyncio.ensure_future(pars_while(link=link, value=ttn, minute=minute))
+    loop = asyncio.get_event_loop()
     loop.run_forever()
 
 @dp.callback_query_handler(text='back', state='*')
